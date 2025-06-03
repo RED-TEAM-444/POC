@@ -1,0 +1,69 @@
+To verify that your persistence mechanism (via a Scheduled Task) has been successfully implanted, you can use the following PowerShell scripts:
+
+✅ Method 1: View Your Specific Task
+
+[ Get-ScheduledTask -TaskName "MicrosoftEdgeUpdaterService" | Format-List * ]
+
+This checks whether the task you registered (MicrosoftEdgeUpdaterService) exists.
+
+It will show properties like triggers, actions, and settings.
+
+
+
+✅ Method 2: Get Task Info and Status
+
+[ Get-ScheduledTaskInfo -TaskName "MicrosoftEdgeUpdaterService" ]
+
+Shows runtime info like:
+
+LastRunTime
+
+LastTaskResult
+
+NextRunTime
+
+LastTaskResult = 0 means the task ran successfully.
+
+
+
+
+✅ Optional: View in Task Scheduler GUI
+You can also manually verify:
+
+Open Task Scheduler → taskschd.msc
+
+Check under Task Scheduler Library for:
+
+Task Name: MicrosoftEdgeUpdaterService
+
+Trigger: At logon
+
+Action: PowerShell.exe with base64 payload
+
+
+
+✅ Cleanup Script
+To delete the task and remove any persistence:
+
+[ Unregister-ScheduledTask -TaskName "MicrosoftEdgeUpdaterService" -Confirm:$false ]
+
+
+
+
+
+The Windows tool abused for persistence is:
+
+🛠️ Task Scheduler (via COM (Component Object Model) API)
+🔍 Tool:
+Task Scheduler
+
+Accessed via:
+
+COM Object → Schedule.Service
+
+In PowerShell: New-Object -ComObject "Schedule.Service"
+
+🧠 Why it’s used:
+Task Scheduler is a built-in Windows service that runs tasks at specific times or system events (like user logon).
+
+Abusing it allows an attacker to automatically run malicious code at logon, even after reboot — achieving persistence.
